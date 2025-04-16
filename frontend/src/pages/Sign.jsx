@@ -1,16 +1,43 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import SignModal from '../components/SignModel';
+import axios from 'axios';
 
 const Sign = () => {
   const [showModal, setShowModal] = useState(false);
   const [signed, setSigned] = useState(false);
+  const [documentId, setDocumentId] = useState(''); // mock or from URL
+
+  // 👇 Replace with actual document ID logic
+  useEffect(() => {
+    setDocumentId('661e9e8ecbd22b42f4e76d1e'); // mock ID or use useParams()
+  }, []);
 
   const handleOpenModal = () => setShowModal(true);
   const handleCloseModal = () => setShowModal(false);
-  const handleSign = () => {
-    setSigned(true);
-    setShowModal(false);
-    alert('Document signed successfully!');
+
+  const handleSign = async () => {
+    try {
+      const token = localStorage.getItem('token'); // ⬅️ Make sure token is stored on login
+
+      const response = await axios.put(
+        `http://localhost:5000/api/sign/${documentId}/sign`,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (response.status === 200) {
+        setSigned(true);
+        setShowModal(false);
+        alert('Document signed successfully!');
+      }
+    } catch (err) {
+      console.error(err);
+      alert('Failed to sign the document.');
+    }
   };
 
   return (
